@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 -- Insert default admin user (password: admin123)
 -- Password hash untuk "admin123" dengan bcrypt
 INSERT INTO users (username, password, email, role) 
-VALUES ('admin', '$2b$10$YourHashedPasswordHere', 'admin@timbukar.desa.id', 'admin')
+VALUES ('admin', '$2b$10$REr67xtbi1O1OmGmqXx.pOY7uF805jUdU27CVAcawGgLEe9Y9LAtq', 'admin@timbukar.desa.id', 'admin')
 ON CONFLICT (username) DO NOTHING;
 
 -- ============================================================

@@ -1,4 +1,5 @@
-import * as jwt from "jsonwebtoken";
+import type { SignOptions } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { appConfig } from "./database.js";
 
 export interface JwtPayload {
@@ -8,17 +9,15 @@ export interface JwtPayload {
 }
 
 export function generateToken(payload: JwtPayload): string {
-  return jwt.sign(
-    payload,
-    appConfig.jwtSecret as string,
-    {
-      expiresIn: appConfig.jwtExpire as string,
-    } as jwt.SignOptions
-  );
+  const options: SignOptions = {
+    expiresIn: "7d",
+  };
+
+  return jwt.sign(payload, appConfig.jwtSecret, options);
 }
 
 export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, appConfig.jwtSecret as string, {}) as JwtPayload;
+  return jwt.verify(token, appConfig.jwtSecret) as JwtPayload;
 }
 
 export function decodeToken(token: string): JwtPayload | null {

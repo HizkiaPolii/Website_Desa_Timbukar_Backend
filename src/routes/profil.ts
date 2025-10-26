@@ -17,12 +17,13 @@ router.get("/", (req: AuthenticatedRequest, res: Response) =>
 
 // Admin routes
 router.put(
-  "/:id",
+  "/",
   authenticate,
   adminOnly,
   (req: AuthenticatedRequest, res: Response) =>
     profilController.updateProfil(req, res)
 );
+
 router.post(
   "/",
   authenticate,

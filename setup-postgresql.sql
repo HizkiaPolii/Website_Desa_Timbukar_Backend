@@ -44,38 +44,37 @@ ON CONFLICT (username) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS profil_desa (
   id SERIAL PRIMARY KEY,
-  nama_desa VARCHAR(100) NOT NULL,
-  provinsi VARCHAR(100),
-  kabupaten VARCHAR(100),
-  kecamatan VARCHAR(100),
-  luas_wilayah VARCHAR(50),
-  jumlah_penduduk INTEGER,
-  deskripsi TEXT,
-  website VARCHAR(255),
-  telepon VARCHAR(20),
-  email VARCHAR(100),
-  alamat TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  visi TEXT,
+  misi TEXT,
+  sejarah TEXT,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert data default Desa Timbukar
-INSERT INTO profil_desa (
-  nama_desa, provinsi, kabupaten, kecamatan, 
-  luas_wilayah, jumlah_penduduk, deskripsi,
-  website, telepon, email, alamat
-) VALUES (
-  'Timbukar',
-  'Nusa Tenggara Barat',
-  'Lombok Timur',
-  'Selong',
-  '45.50 km²',
-  8500,
-  'Desa yang indah dengan keindahan alam yang memukau. Masyarakat Desa Timbukar terkenal dengan kearifan lokal dan gotong royong yang kuat.',
-  'https://timbukar.desa.id',
-  '(0376) 123456',
-  'admin@timbukar.desa.id',
-  'Jl. Raya Timbukar No. 1'
+INSERT INTO profil_desa (visi, misi, sejarah) VALUES (
+  'Desa Timbukar yang maju, mandiri, dan berkelanjutan dengan pemberdayaan masyarakat dan pelestarian lingkungan.',
+  '[
+    {
+      "no": "1",
+      "title": "Meningkatkan kualitas hidup masyarakat",
+      "description": "Melalui peningkatan pendidikan, kesehatan, dan ekonomi masyarakat Desa Timbukar"
+    },
+    {
+      "no": "2",
+      "title": "Memberdayakan masyarakat lokal",
+      "description": "Memberikan pelatihan keterampilan dan akses modal untuk mengembangkan usaha mikro dan kecil"
+    },
+    {
+      "no": "3",
+      "title": "Melestarikan lingkungan dan budaya lokal",
+      "description": "Menjaga kelestarian alam dan warisan budaya yang menjadi identitas Desa Timbukar"
+    }
+  ]',
+  'Desa Timbukar memiliki sejarah panjang sebagai bagian dari Kabupaten Lombok Timur. Desa ini terkenal dengan keindahan alam yang memukau dan masyarakat yang ramah. 
+
+Sejak dulu, masyarakat Desa Timbukar memiliki nilai-nilai kuat tentang gotong royong dan kebersamaan. Tradisi ini masih dijaga hingga hari ini dalam setiap kegiatan kemasyarakatan.
+
+Perkembangan Desa Timbukar terus meningkat dengan dukungan pemerintah dan partisipasi aktif masyarakat dalam pembangunan berkelanjutan.'
 )
 ON CONFLICT DO NOTHING;
 

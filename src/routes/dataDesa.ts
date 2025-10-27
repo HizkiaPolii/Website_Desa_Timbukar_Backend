@@ -26,6 +26,16 @@ router.post(
   (req: AuthenticatedRequest, res: Response) =>
     dataDesaController.create(req, res)
 );
+
+// Update all data in one request
+router.post(
+  "/update-all",
+  authenticate,
+  adminOnly,
+  (req: AuthenticatedRequest, res: Response) =>
+    dataDesaController.updateAll(req, res)
+);
+
 router.put(
   "/:id",
   authenticate,

@@ -151,7 +151,7 @@ export class PemerintahanDesaController {
                 nip.trim(),
                 noTelepon.trim(),
                 alamat.trim(),
-                foto || null,
+                foto && foto.trim() !== "" ? foto : "/images/pemerintahan/default.jpg",
                 kategori || "perangkat_desa",
             ]);
             return res.status(201).json({
@@ -263,9 +263,9 @@ export class PemerintahanDesaController {
                 updateFields.push(`alamat = $${paramCount++}`);
                 updateValues.push(alamat.trim());
             }
-            if (foto !== undefined) {
+            if (foto !== undefined && foto !== null && foto !== "") {
                 updateFields.push(`foto = $${paramCount++}`);
-                updateValues.push(foto || null);
+                updateValues.push(foto);
             }
             if (kategori !== undefined) {
                 updateFields.push(`kategori = $${paramCount++}`);

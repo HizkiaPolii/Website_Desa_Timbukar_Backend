@@ -6,5 +6,6 @@ export declare class DataDesaController {
     create(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>>>;
     update(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>>>;
     delete(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>>>;
+    updateAll(req: AuthenticatedRequest, res: Response): Promise<Response<any, Record<string, any>>>;
 }
 //# sourceMappingURL=dataDesaController.d.ts.map

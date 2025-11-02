@@ -1,33 +1,24 @@
 import type { Response } from "express";
 import type { AuthenticatedRequest } from "../middleware/auth.js";
+import { BumdesService } from "../services/bumdesService.js";
 
 export class BumdesController {
+  private bumdesService: BumdesService;
+
+  constructor() {
+    this.bumdesService = new BumdesService();
+  }
+
   async getAll(req: AuthenticatedRequest, res: Response) {
     try {
-      // TODO: Query database untuk mendapatkan semua data BUMDES
-      const bumdes = [
-        {
-          id: 1,
-          nama: "BUMDES Timbukar Jaya",
-          deskripsi:
-            "Badan Usaha Milik Desa yang mengelola berbagai usaha produktif",
-          bidangUsaha: "Perdagangan, Pertanian, Pariwisata",
-          nomorLegalitas: "001/BUMDES/2021",
-          tanggalDibentuk: "2021-01-15",
-          modal: 500000000,
-          pengurus: "Sumarno",
-          kontakPerson: "081234567890",
-          alamat: "Jl. Raya Timbukar No. 5",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+      const bumdes = await this.bumdesService.getAll();
 
       return res.status(200).json({
         message: "Data BUMDES berhasil didapatkan",
         data: bumdes,
       });
     } catch (error) {
+      console.error("Error in getAll:", error);
       return res.status(500).json({ error: "Gagal mendapatkan data BUMDES" });
     }
   }
@@ -36,24 +27,22 @@ export class BumdesController {
     try {
       const { id } = req.params;
 
-      // TODO: Query database berdasarkan ID
+      if (!id) {
+        return res.status(400).json({ error: "ID tidak valid" });
+      }
+
+      const bumdes = await this.bumdesService.getById(parseInt(id));
+
+      if (!bumdes) {
+        return res.status(404).json({ error: "BUMDES tidak ditemukan" });
+      }
 
       return res.status(200).json({
         message: "Data BUMDES berhasil didapatkan",
-        data: {
-          id,
-          nama: "BUMDES Timbukar Jaya",
-          deskripsi: "Badan Usaha Milik Desa",
-          bidangUsaha: "Perdagangan",
-          nomorLegalitas: "001/BUMDES/2021",
-          tanggalDibentuk: "2021-01-15",
-          modal: 500000000,
-          pengurus: "Sumarno",
-          kontakPerson: "081234567890",
-          alamat: "Jl. Raya Timbukar No. 5",
-        },
+        data: bumdes,
       });
     } catch (error) {
+      console.error("Error in getById:", error);
       return res.status(500).json({ error: "Gagal mendapatkan data BUMDES" });
     }
   }
@@ -61,77 +50,176 @@ export class BumdesController {
   async create(req: AuthenticatedRequest, res: Response) {
     try {
       const {
-        nama,
+        nama_bumdes,
         deskripsi,
-        bidangUsaha,
-        nomorLegalitas,
-        tanggalDibentuk,
-        modal,
-        pengurus,
-        kontakPerson,
+        jenis_usaha,
         alamat,
+        no_telepon,
+        pimpinan,
+        gambar,
       } = req.body;
 
-      // TODO: Validasi input
-      // TODO: Simpan ke database
+      // Validasi input
+      if (!nama_bumdes || !deskripsi || !jenis_usaha || !alamat) {
+        return res.status(400).json({
+          error:
+            "Field wajib diisi: nama_bumdes, deskripsi, jenis_usaha, alamat",
+        });
+      }
+
+      // ✅ Validasi gambar (harus string path, bukan file binary)
+      if (gambar) {
+        if (typeof gambar !== "string") {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_type",
+            message: "Gambar harus berupa string path URL",
+            received: typeof gambar,
+          });
+        }
+
+        // Validasi format path (harus dimulai dengan "/")
+        if (!gambar.startsWith("/")) {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_format",
+            message:
+              "Path gambar harus dimulai dengan '/' (contoh: /images/bumdes/xxx.jpg)",
+            received: gambar,
+          });
+        }
+
+        // Validasi path mengandung folder yang valid
+        const validFolders = [
+          "images/bumdes",
+          "images/pemerintahan",
+          "images/galeri",
+          "images/general",
+        ];
+        const isValidFolder = validFolders.some((folder) =>
+          gambar.includes(folder)
+        );
+        if (!isValidFolder) {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_folder",
+            message: `Path gambar harus berada di salah satu folder: ${validFolders.join(
+              ", "
+            )}`,
+            received: gambar,
+          });
+        }
+      }
+
+      const newBumdes = await this.bumdesService.create({
+        nama_bumdes,
+        deskripsi,
+        jenis_usaha,
+        alamat,
+        no_telepon: no_telepon || "",
+        pimpinan: pimpinan || "",
+        gambar: gambar || "",
+      });
 
       return res.status(201).json({
+        success: true,
         message: "Data BUMDES berhasil dibuat",
-        data: {
-          id: 1,
-          nama,
-          deskripsi,
-          bidangUsaha,
-          nomorLegalitas,
-          tanggalDibentuk,
-          modal,
-          pengurus,
-          kontakPerson,
-          alamat,
-          createdAt: new Date(),
-        },
+        data: newBumdes,
       });
     } catch (error) {
-      return res.status(500).json({ error: "Gagal membuat data BUMDES" });
+      console.error("Error in create:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Gagal membuat data BUMDES",
+      });
     }
   }
 
   async update(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const {
-        nama,
-        deskripsi,
-        bidangUsaha,
-        nomorLegalitas,
-        tanggalDibentuk,
-        modal,
-        pengurus,
-        kontakPerson,
-        alamat,
-      } = req.body;
 
-      // TODO: Validasi input
-      // TODO: Update database
+      if (!id) {
+        return res.status(400).json({ error: "ID tidak valid" });
+      }
+
+      const bumdesId = parseInt(id);
+
+      // Check if bumdes exists
+      const existingBumdes = await this.bumdesService.getById(bumdesId);
+      if (!existingBumdes) {
+        return res.status(404).json({ error: "BUMDES tidak ditemukan" });
+      }
+
+      const updateData = req.body;
+
+      // Validasi minimal satu field untuk update
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({
+          error: "Minimal satu field harus diupdate",
+        });
+      }
+
+      // ✅ Validasi gambar jika ada (harus string path, bukan file binary)
+      if (updateData.gambar) {
+        if (typeof updateData.gambar !== "string") {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_type",
+            message: "Gambar harus berupa string path URL",
+            received: typeof updateData.gambar,
+          });
+        }
+
+        // Validasi format path (harus dimulai dengan "/")
+        if (!updateData.gambar.startsWith("/")) {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_format",
+            message:
+              "Path gambar harus dimulai dengan '/' (contoh: /images/bumdes/xxx.jpg)",
+            received: updateData.gambar,
+          });
+        }
+
+        // Validasi path mengandung folder yang valid
+        const validFolders = [
+          "images/bumdes",
+          "images/pemerintahan",
+          "images/galeri",
+          "images/general",
+        ];
+        const isValidFolder = validFolders.some((folder) =>
+          updateData.gambar.includes(folder)
+        );
+        if (!isValidFolder) {
+          return res.status(400).json({
+            success: false,
+            error: "invalid_gambar_folder",
+            message: `Path gambar harus berada di salah satu folder: ${validFolders.join(
+              ", "
+            )}`,
+            received: updateData.gambar,
+          });
+        }
+      }
+
+      const updatedBumdes = await this.bumdesService.update(
+        bumdesId,
+        updateData
+      );
 
       return res.status(200).json({
+        success: true,
         message: "Data BUMDES berhasil diperbarui",
-        data: {
-          id,
-          nama,
-          deskripsi,
-          bidangUsaha,
-          nomorLegalitas,
-          tanggalDibentuk,
-          modal,
-          pengurus,
-          kontakPerson,
-          alamat,
-          updatedAt: new Date(),
-        },
+        data: updatedBumdes,
       });
     } catch (error) {
-      return res.status(500).json({ error: "Gagal memperbarui data BUMDES" });
+      console.error("Error in update:", error);
+      return res.status(500).json({
+        success: false,
+        error: "Gagal memperbarui data BUMDES",
+      });
     }
   }
 
@@ -139,15 +227,32 @@ export class BumdesController {
     try {
       const { id } = req.params;
 
-      // TODO: Hapus dari database
+      if (!id) {
+        return res.status(400).json({ error: "ID tidak valid" });
+      }
+
+      const bumdesId = parseInt(id);
+
+      // Check if bumdes exists
+      const existingBumdes = await this.bumdesService.getById(bumdesId);
+      if (!existingBumdes) {
+        return res.status(404).json({ error: "BUMDES tidak ditemukan" });
+      }
+
+      const isDeleted = await this.bumdesService.delete(bumdesId);
+
+      if (!isDeleted) {
+        return res.status(500).json({ error: "Gagal menghapus data BUMDES" });
+      }
 
       return res.status(200).json({
         message: "Data BUMDES berhasil dihapus",
         data: {
-          id,
+          id: bumdesId,
         },
       });
     } catch (error) {
+      console.error("Error in delete:", error);
       return res.status(500).json({ error: "Gagal menghapus data BUMDES" });
     }
   }

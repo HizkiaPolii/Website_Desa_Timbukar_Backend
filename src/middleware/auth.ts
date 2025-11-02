@@ -14,7 +14,8 @@ export function authenticate(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const token = (authHeader as string)?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ error: "Token tidak ditemukan" });

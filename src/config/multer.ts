@@ -123,5 +123,5 @@ export const uploadGeneral = multer({
 export const uploadRkpdesa = multer({
   storage: rkpdesaStorage,
   fileFilter: pdfFileFilter,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for PDF
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit for PDF
 });

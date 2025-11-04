@@ -78,13 +78,31 @@ export class BumdesController {
           });
         }
 
-        // Validasi format path (harus dimulai dengan "/")
-        if (!gambar.startsWith("/")) {
+        // Normalize gambar path: extract path dari full URL jika ada
+        let normalizedGambar = gambar;
+        if (gambar.startsWith("http")) {
+          // Extract pathname dari full URL
+          // https://api.desatimbukar.id/uploads/bumdes/xxx.jpg -> /uploads/bumdes/xxx.jpg
+          try {
+            const url = new URL(gambar);
+            normalizedGambar = url.pathname;
+          } catch (e) {
+            return res.status(400).json({
+              success: false,
+              error: "invalid_gambar_url",
+              message: "URL gambar tidak valid",
+              received: gambar,
+            });
+          }
+        }
+
+        // Validasi format path (harus dimulai dengan "/" atau berupa full URL)
+        if (!normalizedGambar.startsWith("/")) {
           return res.status(400).json({
             success: false,
             error: "invalid_gambar_format",
             message:
-              "Path gambar harus dimulai dengan '/' (contoh: /images/bumdes/xxx.jpg)",
+              "Path gambar harus dimulai dengan '/' atau berupa full URL (contoh: /images/bumdes/xxx.jpg atau https://api.desatimbukar.id/uploads/bumdes/xxx.jpg)",
             received: gambar,
           });
         }
@@ -95,9 +113,13 @@ export class BumdesController {
           "images/pemerintahan",
           "images/galeri",
           "images/general",
+          "uploads/bumdes",
+          "uploads/pemerintahan",
+          "uploads/galeri",
+          "uploads/general",
         ];
         const isValidFolder = validFolders.some((folder) =>
-          gambar.includes(folder)
+          normalizedGambar.includes(folder)
         );
         if (!isValidFolder) {
           return res.status(400).json({
@@ -171,13 +193,31 @@ export class BumdesController {
           });
         }
 
-        // Validasi format path (harus dimulai dengan "/")
-        if (!updateData.gambar.startsWith("/")) {
+        // Normalize gambar path: extract path dari full URL jika ada
+        let normalizedGambar = updateData.gambar;
+        if (updateData.gambar.startsWith("http")) {
+          // Extract pathname dari full URL
+          // https://api.desatimbukar.id/uploads/bumdes/xxx.jpg -> /uploads/bumdes/xxx.jpg
+          try {
+            const url = new URL(updateData.gambar);
+            normalizedGambar = url.pathname;
+          } catch (e) {
+            return res.status(400).json({
+              success: false,
+              error: "invalid_gambar_url",
+              message: "URL gambar tidak valid",
+              received: updateData.gambar,
+            });
+          }
+        }
+
+        // Validasi format path (harus dimulai dengan "/" atau berupa full URL)
+        if (!normalizedGambar.startsWith("/")) {
           return res.status(400).json({
             success: false,
             error: "invalid_gambar_format",
             message:
-              "Path gambar harus dimulai dengan '/' (contoh: /images/bumdes/xxx.jpg)",
+              "Path gambar harus dimulai dengan '/' atau berupa full URL (contoh: /images/bumdes/xxx.jpg atau https://api.desatimbukar.id/uploads/bumdes/xxx.jpg)",
             received: updateData.gambar,
           });
         }
@@ -188,9 +228,13 @@ export class BumdesController {
           "images/pemerintahan",
           "images/galeri",
           "images/general",
+          "uploads/bumdes",
+          "uploads/pemerintahan",
+          "uploads/galeri",
+          "uploads/general",
         ];
         const isValidFolder = validFolders.some((folder) =>
-          updateData.gambar.includes(folder)
+          normalizedGambar.includes(folder)
         );
         if (!isValidFolder) {
           return res.status(400).json({

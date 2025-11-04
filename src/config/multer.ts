@@ -2,44 +2,54 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
+// Helper function to create directories
+const ensureDir = (dir: string) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
 // Create uploads directories if they don't exist
 const apbdesDir = path.join(process.cwd(), "uploads", "apbdes");
-if (!fs.existsSync(apbdesDir)) {
-  fs.mkdirSync(apbdesDir, { recursive: true });
-}
+ensureDir(apbdesDir);
 
 const galeriDir = path.join(process.cwd(), "uploads", "galeri");
-if (!fs.existsSync(galeriDir)) {
-  fs.mkdirSync(galeriDir, { recursive: true });
-}
+ensureDir(galeriDir);
 
-// Configure storage for APBDES
-const apbdesStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, apbdesDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${uniqueSuffix}${ext}`);
-  },
-});
+const pemerintahanDir = path.join(process.cwd(), "uploads", "pemerintahan");
+ensureDir(pemerintahanDir);
 
-// Configure storage for Galeri
-const galeriStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, galeriDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${uniqueSuffix}${ext}`);
-  },
-});
+const bumdesDir = path.join(process.cwd(), "uploads", "bumdes");
+ensureDir(bumdesDir);
+
+const generalDir = path.join(process.cwd(), "uploads", "general");
+ensureDir(generalDir);
+
+const rkpdDir = path.join(process.cwd(), "uploads", "rkpdesa");
+ensureDir(rkpdDir);
+
+// Helper function to create storage config
+const createStorage = (uploadDir: string) =>
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      // Generate unique filename
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      const name = path.basename(file.originalname, ext);
+      cb(null, `${name}-${uniqueSuffix}${ext}`);
+    },
+  });
+
+// Configure storage for all folders
+const apbdesStorage = createStorage(apbdesDir);
+const galeriStorage = createStorage(galeriDir);
+const pemerintahanStorage = createStorage(pemerintahanDir);
+const bumdesStorage = createStorage(bumdesDir);
+const generalStorage = createStorage(generalDir);
+const rkpdesaStorage = createStorage(rkpdDir);
 
 // Filter for images only
 const fileFilter = (
@@ -55,7 +65,7 @@ const fileFilter = (
   }
 };
 
-// Create multer instances
+// Create multer instances for all folders
 export const uploadApbdes = multer({
   storage: apbdesStorage,
   fileFilter,
@@ -64,6 +74,30 @@ export const uploadApbdes = multer({
 
 export const uploadGaleri = multer({
   storage: galeriStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+export const uploadPemerintahan = multer({
+  storage: pemerintahanStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+export const uploadBumdes = multer({
+  storage: bumdesStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+export const uploadGeneral = multer({
+  storage: generalStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+export const uploadRkpdesa = multer({
+  storage: rkpdesaStorage,
   fileFilter,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });

@@ -1,48 +1,17 @@
 import { Router, Request, Response } from "express";
-import { uploadApbdes, uploadGaleri } from "../config/multer.js";
+import {
+  uploadApbdes,
+  uploadGaleri,
+  uploadPemerintahan,
+  uploadBumdes,
+  uploadGeneral,
+  uploadRkpdesa,
+} from "../config/multer.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
 const router = Router();
-
-// Configure storage for PDF (RKP Desa)
-const pdfDir = path.join(process.cwd(), "uploads", "rkpdesa");
-if (!fs.existsSync(pdfDir)) {
-  fs.mkdirSync(pdfDir, { recursive: true });
-}
-
-const pdfStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, pdfDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${uniqueSuffix}${ext}`);
-  },
-});
-
-// Filter for PDF only
-const pdfFilter = (
-  req: any,
-  file: Express.Multer.File,
-  cb: multer.FileFilterCallback
-) => {
-  if (file.mimetype === "application/pdf") {
-    cb(null, true);
-  } else {
-    cb(new Error("Hanya file PDF yang diizinkan"));
-  }
-};
-
-const uploadPDF = multer({
-  storage: pdfStorage,
-  fileFilter: pdfFilter,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit for PDF
-});
 
 /**
  * POST /api/upload
@@ -68,11 +37,29 @@ router.post("/", (req: Request, res: Response, next) => {
     });
   }
 
-  // Use different upload handlers based on folder
-  const uploadHandler =
-    folder === "galeri"
-      ? uploadGaleri.single("file")
-      : uploadApbdes.single("file");
+  // Select appropriate upload handler based on folder
+  let uploadHandler;
+  switch (folder) {
+    case "galeri":
+      uploadHandler = uploadGaleri.single("file");
+      break;
+    case "apbdes":
+      uploadHandler = uploadApbdes.single("file");
+      break;
+    case "pemerintahan":
+      uploadHandler = uploadPemerintahan.single("file");
+      break;
+    case "bumdes":
+      uploadHandler = uploadBumdes.single("file");
+      break;
+    case "general":
+      uploadHandler = uploadGeneral.single("file");
+      break;
+    default:
+      return res.status(400).json({
+        error: "Folder tidak valid",
+      });
+  }
 
   uploadHandler(req, res, (err) => {
     if (err instanceof multer.MulterError) {
@@ -117,7 +104,7 @@ router.post("/", (req: Request, res: Response, next) => {
  * Body: file (multipart/form-data)
  */
 router.post("/pdf", (req: Request, res: Response) => {
-  uploadPDF.single("file")(req, res, (err) => {
+  uploadRkpdesa.single("file")(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       return res.status(400).json({
         error: "Upload error",

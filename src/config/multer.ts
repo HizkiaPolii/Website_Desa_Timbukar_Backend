@@ -22,6 +22,9 @@ ensureDir(pemerintahanDir);
 const bumdesDir = path.join(process.cwd(), "uploads", "bumdes");
 ensureDir(bumdesDir);
 
+const lembagaDir = path.join(process.cwd(), "uploads", "lembaga");
+ensureDir(lembagaDir);
+
 const generalDir = path.join(process.cwd(), "uploads", "general");
 ensureDir(generalDir);
 
@@ -48,6 +51,7 @@ const apbdesStorage = createStorage(apbdesDir);
 const galeriStorage = createStorage(galeriDir);
 const pemerintahanStorage = createStorage(pemerintahanDir);
 const bumdesStorage = createStorage(bumdesDir);
+const lembagaStorage = createStorage(lembagaDir);
 const generalStorage = createStorage(generalDir);
 const rkpdesaStorage = createStorage(rkpdDir);
 
@@ -86,6 +90,12 @@ export const uploadPemerintahan = multer({
 
 export const uploadBumdes = multer({
   storage: bumdesStorage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+});
+
+export const uploadLembaga = multer({
+  storage: lembagaStorage,
   fileFilter,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 });

@@ -4,6 +4,7 @@ import {
   uploadGaleri,
   uploadPemerintahan,
   uploadBumdes,
+  uploadLembaga,
   uploadGeneral,
   uploadRkpdesa,
 } from "../config/multer.js";
@@ -27,6 +28,7 @@ router.post("/", (req: Request, res: Response, next) => {
     "galeri",
     "pemerintahan",
     "bumdes",
+    "lembaga",
     "general",
   ];
 
@@ -51,6 +53,9 @@ router.post("/", (req: Request, res: Response, next) => {
       break;
     case "bumdes":
       uploadHandler = uploadBumdes.single("file");
+      break;
+    case "lembaga":
+      uploadHandler = uploadLembaga.single("file");
       break;
     case "general":
       uploadHandler = uploadGeneral.single("file");

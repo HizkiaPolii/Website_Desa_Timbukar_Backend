@@ -84,11 +84,11 @@ export class ApbdesController {
     }
     async create(req, res) {
         try {
-            const { tahun, keterangan, pendapatan, belanja, pembiayaan } = req.body;
-            // Get file from multer
+            const { tahun, keterangan, pendapatan, belanja, pembiayaan, file_dokumen: bodyFileDokumen } = req.body;
+            // Get file from multer OR from body (from frontend)
             const file_dokumen = req.file
                 ? req.file.filename
-                : null;
+                : (bodyFileDokumen || null);
             if (!tahun ||
                 pendapatan === undefined ||
                 belanja === undefined ||
@@ -97,11 +97,8 @@ export class ApbdesController {
                     error: "Tahun, pendapatan, belanja, dan pembiayaan harus diisi",
                 });
             }
-            if (!file_dokumen) {
-                return res.status(400).json({
-                    error: "Gambar APBDES harus diupload",
-                });
-            }
+            // file_dokumen opsional (bisa kosong atau null)
+            // Tidak perlu validasi ketat
             // Check if tahun already exists
             const existing = await this.apbdesService.getByTahun(parseInt(tahun));
             if (existing) {
@@ -130,7 +127,7 @@ export class ApbdesController {
     async update(req, res) {
         try {
             const { id } = req.params;
-            const { tahun, keterangan, pendapatan, belanja, pembiayaan } = req.body;
+            const { tahun, keterangan, pendapatan, belanja, pembiayaan, file_dokumen: bodyFileDokumen } = req.body;
             if (!id) {
                 return res.status(400).json({ error: "ID tidak valid" });
             }
@@ -148,10 +145,10 @@ export class ApbdesController {
                         .json({ error: "APBDES untuk tahun tersebut sudah ada" });
                 }
             }
-            // Get file from multer if provided
+            // Get file from multer (if new file uploaded) OR from body (if sent from frontend)
             const file_dokumen = req.file
                 ? req.file.filename
-                : undefined;
+                : (bodyFileDokumen !== undefined ? bodyFileDokumen : undefined);
             const updateData = {};
             if (tahun !== undefined)
                 updateData.tahun = parseInt(tahun);

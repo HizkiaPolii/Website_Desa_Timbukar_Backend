@@ -16,6 +16,7 @@ import rkpdesaRoutes from "./routes/rkpdesa.js";
 import apbdesRoutes from "./routes/apbdes.js";
 import galeriRoutes from "./routes/galeri.js";
 import kontakRoutes from "./routes/kontak.js";
+import uploadRoutes from "./routes/upload.js";
 // Load environment variables
 dotenv.config();
 const app = express.default();
@@ -23,7 +24,13 @@ const app = express.default();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Middleware
-app.use(cors());
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || "*",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Serve uploads folder as static
@@ -39,6 +46,7 @@ app.use("/api/rkpdesa", rkpdesaRoutes);
 app.use("/api/apbdes", apbdesRoutes);
 app.use("/api/galeri", galeriRoutes);
 app.use("/api/kontak", kontakRoutes);
+app.use("/api/upload", uploadRoutes);
 // Health check route
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "Server is running" });

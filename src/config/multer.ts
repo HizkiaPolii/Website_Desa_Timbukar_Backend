@@ -69,6 +69,20 @@ const fileFilter = (
   }
 };
 
+// Filter for PDF documents only
+const pdfFileFilter = (
+  req: any,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  const allowedMimes = ["application/pdf"];
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Hanya file PDF yang diizinkan"));
+  }
+};
+
 // Create multer instances for all folders
 export const uploadApbdes = multer({
   storage: apbdesStorage,
@@ -108,6 +122,6 @@ export const uploadGeneral = multer({
 
 export const uploadRkpdesa = multer({
   storage: rkpdesaStorage,
-  fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: pdfFileFilter,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for PDF
 });

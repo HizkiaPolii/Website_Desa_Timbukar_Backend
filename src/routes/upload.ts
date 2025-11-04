@@ -29,6 +29,7 @@ router.post("/", (req: Request, res: Response, next) => {
     "pemerintahan",
     "bumdes",
     "lembaga",
+    "rkpdesa",
     "general",
   ];
 
@@ -56,6 +57,9 @@ router.post("/", (req: Request, res: Response, next) => {
       break;
     case "lembaga":
       uploadHandler = uploadLembaga.single("file");
+      break;
+    case "rkpdesa":
+      uploadHandler = uploadRkpdesa.single("file");
       break;
     case "general":
       uploadHandler = uploadGeneral.single("file");

@@ -108,20 +108,20 @@ export class PemerintahanDesaController {
         errors.jabatan = "Jabatan maksimal 100 karakter";
       }
 
-      if (nip !== undefined && nip !== null && nip !== "") {
-        if (typeof nip !== "string" || nip.trim().length === 0) {
-          errors.nip = "NIP harus berisi nilai yang valid";
-        } else if (!/^\d{15,20}$/.test(nip.trim())) {
-          errors.nip = "NIP harus berisi 15-20 digit angka";
-        }
+      if (!nip || typeof nip !== "string" || nip.trim().length === 0) {
+        errors.nip = "NIP harus diisi";
+      } else if (!/^\d{15,20}$/.test(nip.trim())) {
+        errors.nip = "NIP harus berisi 15-20 digit angka";
       }
 
-      if (noTelepon !== undefined && noTelepon !== null && noTelepon !== "") {
-        if (typeof noTelepon !== "string" || noTelepon.trim().length === 0) {
-          errors.noTelepon = "Nomor telepon harus berisi nilai yang valid";
-        } else if (!/^\d{10,15}$/.test(noTelepon.replace(/\D/g, ""))) {
-          errors.noTelepon = "Nomor telepon tidak valid (10-15 digit)";
-        }
+      if (
+        !noTelepon ||
+        typeof noTelepon !== "string" ||
+        noTelepon.trim().length === 0
+      ) {
+        errors.noTelepon = "Nomor telepon harus diisi";
+      } else if (!/^\d{10,15}$/.test(noTelepon.replace(/\D/g, ""))) {
+        errors.noTelepon = "Nomor telepon tidak valid (10-15 digit)";
       }
 
       if (!alamat || typeof alamat !== "string" || alamat.trim().length === 0) {
@@ -149,15 +149,13 @@ export class PemerintahanDesaController {
 
       const pool = getPool();
 
-      // Check NIP unique (hanya jika NIP diisi)
-      if (nip && nip.trim().length > 0) {
-        const nipCheck = await pool.query(
-          "SELECT id FROM pemerintahan WHERE nip = $1",
-          [nip.trim()]
-        );
-        if (nipCheck.rows.length > 0) {
-          return res.status(409).json({ error: "NIP sudah terdaftar" });
-        }
+      // Check NIP unique
+      const nipCheck = await pool.query(
+        "SELECT id FROM pemerintahan WHERE nip = $1",
+        [nip.trim()]
+      );
+      if (nipCheck.rows.length > 0) {
+        return res.status(409).json({ error: "NIP sudah terdaftar" });
       }
 
       const query = `
@@ -179,8 +177,8 @@ export class PemerintahanDesaController {
       const result = await pool.query(query, [
         nama.trim(),
         jabatan.trim(),
-        nip ? nip.trim() : null,
-        noTelepon ? noTelepon.trim() : null,
+        nip.trim(),
+        noTelepon.trim(),
         alamat.trim(),
         foto && foto.trim() !== "" ? foto : "/images/pemerintahan/default.jpg",
         kategori || "perangkat_desa",
@@ -246,25 +244,20 @@ export class PemerintahanDesaController {
 
       if (
         nip !== undefined &&
-        nip !== null &&
-        nip !== "" &&
         (typeof nip !== "string" || nip.trim().length === 0)
       ) {
-        errors.nip = "NIP harus berisi nilai yang valid";
-      } else if (nip && nip !== "" && !/^\d{15,20}$/.test(nip.trim())) {
+        errors.nip = "NIP harus diisi";
+      } else if (nip && !/^\d{15,20}$/.test(nip.trim())) {
         errors.nip = "NIP harus berisi 15-20 digit angka";
       }
 
       if (
         noTelepon !== undefined &&
-        noTelepon !== null &&
-        noTelepon !== "" &&
         (typeof noTelepon !== "string" || noTelepon.trim().length === 0)
       ) {
-        errors.noTelepon = "Nomor telepon harus berisi nilai yang valid";
+        errors.noTelepon = "Nomor telepon harus diisi";
       } else if (
         noTelepon &&
-        noTelepon !== "" &&
         !/^\d{10,15}$/.test(noTelepon.replace(/\D/g, ""))
       ) {
         errors.noTelepon = "Nomor telepon tidak valid (10-15 digit)";
@@ -296,8 +289,8 @@ export class PemerintahanDesaController {
         });
       }
 
-      // Check NIP unique if being updated (hanya jika NIP diisi dan berubah)
-      if (nip && nip.trim().length > 0) {
+      // Check NIP unique if being updated
+      if (nip) {
         const nipCheck = await pool.query(
           "SELECT id FROM pemerintahan WHERE nip = $1 AND id != $2",
           [nip.trim(), Number(id)]
@@ -322,13 +315,11 @@ export class PemerintahanDesaController {
       }
       if (nip !== undefined) {
         updateFields.push(`nip = $${paramCount++}`);
-        updateValues.push(nip && nip.trim().length > 0 ? nip.trim() : null);
+        updateValues.push(nip.trim());
       }
       if (noTelepon !== undefined) {
         updateFields.push(`no_telepon = $${paramCount++}`);
-        updateValues.push(
-          noTelepon && noTelepon.trim().length > 0 ? noTelepon.trim() : null
-        );
+        updateValues.push(noTelepon.trim());
       }
       if (alamat !== undefined) {
         updateFields.push(`alamat = $${paramCount++}`);

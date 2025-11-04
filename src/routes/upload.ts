@@ -94,7 +94,7 @@ router.post("/", (req: Request, res: Response, next) => {
     }
 
     // Construct URL
-    const fileUrl = `/uploads/${folder}/${req.file.filename}`;
+    const fileUrl = `https://api.desatimbukar.id/api/uploads/${folder}/${req.file.filename}`;
 
     return res.status(200).json({
       success: true,
@@ -137,7 +137,7 @@ router.post("/pdf", (req: Request, res: Response) => {
     }
 
     // Construct URL
-    const fileUrl = `/uploads/rkpdesa/${req.file.filename}`;
+    const fileUrl = `https://api.desatimbukar.id/api/uploads/rkpdesa/${req.file.filename}`;
 
     return res.status(200).json({
       success: true,
@@ -179,7 +179,7 @@ router.post("/galeri", (req: Request, res: Response) => {
     }
 
     // Construct URL
-    const fileUrl = `/uploads/galeri/${req.file.filename}`;
+    const fileUrl = `https://api.desatimbukar.id/api/uploads/galeri/${req.file.filename}`;
 
     return res.status(200).json({
       success: true,

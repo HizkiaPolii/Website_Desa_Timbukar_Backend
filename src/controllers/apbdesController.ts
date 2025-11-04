@@ -105,12 +105,12 @@ export class ApbdesController {
 
   async create(req: AuthenticatedRequest, res: Response) {
     try {
-      const { tahun, keterangan, pendapatan, belanja, pembiayaan } = req.body;
+      const { tahun, keterangan, pendapatan, belanja, pembiayaan, file_dokumen: bodyFileDokumen } = req.body;
 
-      // Get file from multer
+      // Get file from multer OR from body (from frontend)
       const file_dokumen = (req as any).file
         ? (req as any).file.filename
-        : null;
+        : (bodyFileDokumen || null);
 
       if (
         !tahun ||
@@ -123,11 +123,8 @@ export class ApbdesController {
         });
       }
 
-      if (!file_dokumen) {
-        return res.status(400).json({
-          error: "Gambar APBDES harus diupload",
-        });
-      }
+      // file_dokumen opsional (bisa kosong atau null)
+      // Tidak perlu validasi ketat
 
       // Check if tahun already exists
       const existing = await this.apbdesService.getByTahun(parseInt(tahun));
@@ -159,7 +156,7 @@ export class ApbdesController {
   async update(req: AuthenticatedRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { tahun, keterangan, pendapatan, belanja, pembiayaan } = req.body;
+      const { tahun, keterangan, pendapatan, belanja, pembiayaan, file_dokumen: bodyFileDokumen } = req.body;
 
       if (!id) {
         return res.status(400).json({ error: "ID tidak valid" });
@@ -181,10 +178,10 @@ export class ApbdesController {
         }
       }
 
-      // Get file from multer if provided
+      // Get file from multer (if new file uploaded) OR from body (if sent from frontend)
       const file_dokumen = (req as any).file
         ? (req as any).file.filename
-        : undefined;
+        : (bodyFileDokumen !== undefined ? bodyFileDokumen : undefined);
 
       const updateData: any = {};
       if (tahun !== undefined) updateData.tahun = parseInt(tahun);

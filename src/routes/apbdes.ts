@@ -34,6 +34,8 @@ router.post(
   (req: AuthenticatedRequest, res: Response) =>
     apbdesController.create(req, res)
 );
+
+// Update dengan file upload (form-data)
 router.put(
   "/:id",
   authenticate,
@@ -42,6 +44,16 @@ router.put(
   (req: AuthenticatedRequest, res: Response) =>
     apbdesController.update(req, res)
 );
+
+// Update tanpa file upload (JSON) - untuk delete image atau update data
+router.patch(
+  "/:id",
+  authenticate,
+  adminOnly,
+  (req: AuthenticatedRequest, res: Response) =>
+    apbdesController.update(req, res)
+);
+
 router.delete(
   "/:id",
   authenticate,
